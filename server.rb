@@ -2,11 +2,24 @@ require "sinatra"
 require "net/http"
 require "uri"
 require "json"
+require "yaml"
+
+config = {
+  freshdesk_key: ENV['FRESHDESK_API_KEY'],
+  freshdesk_domain: ENV['FRESHDESK_DOMAIN'],
+  freshdesk_custom_field: ENV['FRESHDESK_CUSTOM_FIELD']
+}
+
+if File.exists?(path = File.join(File.dirname(__FILE__), 'config.yml')) then
+  config.merge!(YAML.load(File.read(path)) || {})
+end
+
+Config = config
 
 
 def send_api_request(action, params = nil, data = nil, put = false)
-  key = ENV['FRESHDESK_API_KEY']
-  domain = ENV['FRESHDESK_DOMAIN']
+  key = Config[:freshdesk_key]
+  domain = Config[:freshdesk_domain]
 
   params ||= {}
   params["format"] = "json"
@@ -52,13 +65,18 @@ def with_freshdesk_tickets
     tickets.each {|tik| yield tik}
     page = page.next
   end
-
 end
 
-def with_tickets_for_issue(number)
+def field_for_repo(repo)
+  return unless Config["repositories"]
+
+  Config["repositories"][repo["full_name"]] || Config["repositories"][repo["name"]]
+end
+
+def with_tickets_for_issue(number, repo)
   return unless block_given?
 
-  custom_field_name = ENV['FRESHDESK_CUSTOM_FIELD']
+  custom_field_name = field_for_repo(repo) || Config[:freshdesk_custom_field]
 
   with_freshdesk_tickets do |ticket|
     if ticket["custom_field"][custom_field_name].to_s == number.to_s then
@@ -67,13 +85,13 @@ def with_tickets_for_issue(number)
   end
 end
 
-def handle_labeled(number, label)
+def handle_labeled(number, repo, label)
   return unless label =~ /^fixed/i
 
-  with_tickets_for_issue(number) do |ticket|
+  with_tickets_for_issue(number, repo) do |ticket|
     send_api_request("tickets/#{ticket['display_id']}/conversations/note", nil, JSON.generate({
       :helpdesk_note => {
-        :body => "Github issue ##{number} has been marked as #{label}.",
+        :body => "Github issue #{repo["full_name"]}##{number} has been marked as #{label}.",
         :private => false
       }
     }))
@@ -81,8 +99,8 @@ def handle_labeled(number, label)
   end
 end
 
-def handle_closed(number)
-  with_tickets_for_issue(number) do |ticket|
+def handle_closed(number, repo)
+  with_tickets_for_issue(number, repo) do |ticket|
     send_api_request("tickets/#{ticket['display_id']}", nil, JSON.generate({
       :helpdesk_ticket => {
         :status => 4
@@ -98,9 +116,9 @@ post '/endpoint' do
 
   case event["action"]
   when "labeled"
-    handle_labeled(event["issue"]["number"], event["label"]["name"])
+    handle_labeled(event["issue"]["number"], event["repository"], event["label"]["name"])
   when "closed"
-    handle_closed(event["issue"]["number"])
+    handle_closed(event["issue"]["number"], event["repository"])
   end
 
   "OK"
