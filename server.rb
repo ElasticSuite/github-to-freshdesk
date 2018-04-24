@@ -122,8 +122,10 @@ def handle_closed(number, repo)
 end
 
 post '/endpoint' do
-  body = request.env["rack.input"].read
+  body = request.body.read
   event = JSON.parse(body)
+  puts "event"
+  puts event
 
   case event["action"]
   when "labeled"
