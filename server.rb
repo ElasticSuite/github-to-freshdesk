@@ -32,7 +32,7 @@ def send_api_request(action, params = nil, data = nil, put = false)
     "https://#{domain}.freshdesk.com/api/v2/#{action}?query=\"#{query_string}\"" : 
     "https://#{domain}.freshdesk.com/api/v2/#{action}")
 
-  puts 🚀
+  puts "🚀"
   puts uri
   http = Net::HTTP.new(uri.host, uri.port)
   http.use_ssl = true
