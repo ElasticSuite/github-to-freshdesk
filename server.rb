@@ -127,12 +127,15 @@ post '/endpoint' do
   puts "event"
   puts event
 
+  puts "event action"
   puts event["action"]
+
+  puts "full repo name"
+  puts event["repository"]["full_name"]
 
   case event["action"]
   when "labeled"
     puts "🛒 handling labeled"
-    puts event["repository"]["name"]
     puts event["label"]["name"]
 
     handle_labeled(event["issue"]["number"], event["repository"]["full_name"], event["label"]["name"])
