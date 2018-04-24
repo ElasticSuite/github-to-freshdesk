@@ -107,7 +107,7 @@ def handle_labeled(number, repo, label)
   tickets = tickets_for_issue(number, repo)
 
   tickets.each do |ticket|
-    send_api_request("tickets/#{ticket['id']}/conversations/note", nil, JSON.generate({
+    send_api_request("tickets/#{ticket['id']}/notes", nil, JSON.generate({
       :helpdesk_note => {
         :body => "Github issue #{repo["full_name"]}##{number} has been marked as #{label}.",
         :private => false
