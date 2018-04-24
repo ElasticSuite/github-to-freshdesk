@@ -135,10 +135,10 @@ post '/endpoint' do
     puts event["repository"]["name"]
     puts event["label"]["name"]
 
-    handle_labeled(event["issue"]["number"], event["repository"]["name"], event["label"]["name"])
+    handle_labeled(event["issue"]["number"], event["repository"]["full_name"], event["label"]["name"])
   when "closed"
     puts "🛒 handling closed"
-    handle_closed(event["issue"]["number"], event["repository"]["name"])
+    handle_closed(event["issue"]["number"], event["repository"]["full_name"])
   end
 
   "OK"
