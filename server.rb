@@ -125,9 +125,9 @@ post '/endpoint' do
 
   case event["action"]
   when "labeled"
-    handle_labeled(event["issue"]["number"], event["repository"], event["label"]["name"])
+    handle_labeled(event["issue"]["number"], event["repository"]["name"], event["label"]["name"])
   when "closed"
-    handle_closed(event["issue"]["number"], event["repository"])
+    handle_closed(event["issue"]["number"], event["repository"]["name"])
   end
 
   "OK"
