@@ -27,6 +27,7 @@ def send_api_request(action, params = nil, data = nil, put = false)
   params.each_pair {|k,v| query_parts << "#{k.to_s}:#{v.to_s}"}
   query_string = query_parts.join(" AND ")
 
+
   uri = URI.parse(query_string.length > 0 ? 
     "https://#{domain}.freshdesk.com/api/v2/#{action}?query=\"#{query_string}\"" : 
     "https://#{domain}.freshdesk.com/api/v2/#{action}")
@@ -59,10 +60,11 @@ def field_for_repo(repo)
   Config["repositories"][repo["full_name"]] || Config["repositories"][repo["name"]]
 end
 
+
 def tickets_for_issue(number, repo) 
   custom_field_name = field_for_repo(repo) || Config[:freshdesk_custom_field]
   tickets = send_api_request("search/tickets", { custom_field_name => number })["results"]
-
+  
   tickets
 end
 
