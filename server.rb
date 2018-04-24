@@ -30,7 +30,7 @@ def send_api_request(action, params = nil, data = nil, put = false)
   # uri = URI.parse("https://#{domain}.freshdesk.com/helpdesk/#{action}?#{query_string}")
   uri = URI.parse(query_string.length > 0) ? 
     "https://#{domain}.freshdesk.com/api/v2/#{action}?query=#{query_string}" : 
-    "https://#{domain}.freshdesk.com/api/v2/#{action}")
+    "https://#{domain}.freshdesk.com/api/v2/#{action}"
 
   http = Net::HTTP.new(uri.host, uri.port)
   http.use_ssl = true
