@@ -108,10 +108,8 @@ def handle_labeled(number, repo, label)
 
   tickets.each do |ticket|
     send_api_request("tickets/#{ticket['id']}/notes", nil, JSON.generate({
-      :helpdesk_note => {
-        :body => "Github issue #{repo["full_name"]}##{number} has been marked as #{label}.",
-        :private => false
-      }
+      :body => "Github issue #{repo["full_name"]}##{number} has been marked as #{label}.",
+      :private => false
     }))
 
   end
@@ -123,9 +121,7 @@ def handle_closed(number, repo)
 
   tickets.each do |ticket|
     send_api_request("tickets/#{ticket['id']}", nil, JSON.generate({
-      :helpdesk_ticket => {
-        :status => 4
-      }
+      :status => 4
     }), true)
 
   end
