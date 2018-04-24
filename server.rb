@@ -127,8 +127,13 @@ post '/endpoint' do
 
   case event["action"]
   when "labeled"
+    puts "🛒 handling labeled"
+    puts event["repository"]["name"]
+    puts event["label"]["name"]
+
     handle_labeled(event["issue"]["number"], event["repository"]["name"], event["label"]["name"])
   when "closed"
+    puts "🛒 handling closed"
     handle_closed(event["issue"]["number"], event["repository"]["name"])
   end
 
