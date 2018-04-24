@@ -91,7 +91,7 @@ end
 #   end
 # end
 
-def with_tickets_for_issue(number, repo) 
+def tickets_for_issue(number, repo) 
   custom_field_name = field_for_repo(repo) || Config[:freshdesk_custom_field]
   tickets = send_api_request("search/tickets", { custom_field_name => number })["results"]
 
@@ -104,7 +104,9 @@ end
 def handle_labeled(number, repo, label)
   return unless label =~ /^fixed/i
 
-  with_tickets_for_issue(number, repo) do |ticket|
+  tickets = tickets_for_issue(number, repo)
+
+  tickets.each do |ticket|
     send_api_request("tickets/#{ticket['id']}/conversations/note", nil, JSON.generate({
       :helpdesk_note => {
         :body => "Github issue #{repo["full_name"]}##{number} has been marked as #{label}.",
@@ -117,7 +119,9 @@ end
 
 def handle_closed(number, repo)
 
-  with_tickets_for_issue(number, repo) do |ticket|
+  tickets = tickets_for_issue(number, repo)
+
+  tickets.each do |ticket|
     send_api_request("tickets/#{ticket['id']}", nil, JSON.generate({
       :helpdesk_ticket => {
         :status => 4
