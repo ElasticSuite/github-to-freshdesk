@@ -4,6 +4,8 @@ require "uri"
 require "json"
 require "yaml"
 
+puts " 🙇‍♂️ sanity check"
+
 config = {
   freshdesk_key: ENV['FRESHDESK_API_KEY'],
   freshdesk_domain: ENV['FRESHDESK_DOMAIN'],
