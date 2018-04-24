@@ -92,6 +92,10 @@ end
 def with_tickets_for_issue(number, repo) 
   custom_field_name = field_for_repo(repo) || Config[:freshdesk_custom_field]
   tickets = send_api_request("search/tickets", { custom_field_name => number })
+
+  puts "🎫"
+  puts tickets
+
   tickets
 end
 
@@ -124,8 +128,6 @@ end
 post '/endpoint' do
   body = request.body.read
   event = JSON.parse(body)
-  puts "event"
-  puts event
 
   puts "event action"
   puts event["action"]
@@ -138,10 +140,10 @@ post '/endpoint' do
     puts "🛒 handling labeled"
     puts event["label"]["name"]
 
-    handle_labeled(event["issue"]["number"], event["repository"]["full_name"], event["label"]["name"])
+    handle_labeled(event["issue"]["number"], event["repository"], event["label"]["name"])
   when "closed"
     puts "🛒 handling closed"
-    handle_closed(event["issue"]["number"], event["repository"]["full_name"])
+    handle_closed(event["issue"]["number"], event["repository"])
   end
 
   "OK"
