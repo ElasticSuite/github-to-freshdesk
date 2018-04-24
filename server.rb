@@ -93,7 +93,7 @@ end
 
 def with_tickets_for_issue(number, repo) 
   custom_field_name = field_for_repo(repo) || Config[:freshdesk_custom_field]
-  tickets = send_api_request("search/tickets", { custom_field_name => number })
+  tickets = send_api_request("search/tickets", { custom_field_name => number })["results"]
 
   puts "🎫"
   puts tickets
