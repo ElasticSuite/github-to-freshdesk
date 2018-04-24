@@ -127,6 +127,8 @@ post '/endpoint' do
   puts "event"
   puts event
 
+  puts event["action"]
+
   case event["action"]
   when "labeled"
     puts "🛒 handling labeled"
