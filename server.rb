@@ -22,13 +22,14 @@ def send_api_request(action, params = nil, data = nil, put = false)
   domain = Config[:freshdesk_domain]
 
   params ||= {}
-  params["format"] = "json"
 
   query_parts = []
-  params.each_pair {|k,v| query_parts << "#{k.to_s}=#{v.to_s}"}
-  query_string = query_parts.join("&")
+  params.each_pair {|k,v| query_parts << "#{k.to_s}:#{v.to_s}"}
+  query_string = query_parts.join(" AND ")
 
-  uri = URI.parse("https://#{domain}.freshdesk.com/helpdesk/#{action}?#{query_string}")
+  uri = URI.parse(query_string.length > 0 ? 
+    "https://#{domain}.freshdesk.com/api/v2/#{action}?query=\"#{query_string}\"" : 
+    "https://#{domain}.freshdesk.com/api/v2/#{action}")
 
   http = Net::HTTP.new(uri.host, uri.port)
   http.use_ssl = true
@@ -45,26 +46,11 @@ def send_api_request(action, params = nil, data = nil, put = false)
 
   response = http.request(request)
 
-  unless response.code.to_s == "200" then
-    throw "Response code wasn't 200! #{response.code} #{uri.to_s} \n#{response.body}"
+  unless response.kind_of? Net::HTTPSuccess then
+    throw "Response wasn't susccessful #{response.code} #{uri.to_s} \n#{response.body}"
   end
 
   JSON.parse response.body
-end
-
-def with_freshdesk_tickets
-  return unless block_given?
-
-  page = 1
-  done = false
-
-  while !done do
-    tickets = send_api_request("tickets/filter/all_tickets", :page => page)
-    done = true and next if tickets.count.zero?
-
-    tickets.each {|tik| yield tik}
-    page = page.next
-  end
 end
 
 def field_for_repo(repo)
@@ -73,45 +59,41 @@ def field_for_repo(repo)
   Config["repositories"][repo["full_name"]] || Config["repositories"][repo["name"]]
 end
 
-def with_tickets_for_issue(number, repo)
-  return unless block_given?
-
+def tickets_for_issue(number, repo) 
   custom_field_name = field_for_repo(repo) || Config[:freshdesk_custom_field]
+  tickets = send_api_request("search/tickets", { custom_field_name => number })["results"]
 
-  with_freshdesk_tickets do |ticket|
-    if ticket["custom_field"][custom_field_name].to_s == number.to_s then
-      yield ticket
-    end
-  end
+  tickets
 end
 
 def handle_labeled(number, repo, label)
   return unless label =~ /^fixed/i
 
-  with_tickets_for_issue(number, repo) do |ticket|
-    send_api_request("tickets/#{ticket['display_id']}/conversations/note", nil, JSON.generate({
-      :helpdesk_note => {
-        :body => "Github issue #{repo["full_name"]}##{number} has been marked as #{label}.",
-        :private => false
-      }
+  tickets = tickets_for_issue(number, repo)
+
+  tickets.each do |ticket|
+    send_api_request("tickets/#{ticket['id']}/notes", nil, JSON.generate({
+      :body => "Github issue #{repo["full_name"]}##{number} has been marked as #{label}.",
+      :private => false
     }))
 
   end
 end
 
 def handle_closed(number, repo)
-  with_tickets_for_issue(number, repo) do |ticket|
-    send_api_request("tickets/#{ticket['display_id']}", nil, JSON.generate({
-      :helpdesk_ticket => {
-        :status => 4
-      }
+
+  tickets = tickets_for_issue(number, repo)
+
+  tickets.each do |ticket|
+    send_api_request("tickets/#{ticket['id']}", nil, JSON.generate({
+      :status => 4
     }), true)
 
   end
 end
 
 post '/endpoint' do
-  body = request.env["rack.input"].read
+  body = request.body.read
   event = JSON.parse(body)
 
   case event["action"]
