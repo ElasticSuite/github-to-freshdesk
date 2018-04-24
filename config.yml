@@ -1,4 +1,4 @@
 ---
 repositories:
-  ElasticSuite/scramble4: cf_sr_ticket_146275
-  ElasticSuite/skillet: skillet_issue_146275
+  ElasticSuite/scramble4: cf_sr_ticket
+  ElasticSuite/skillet: skillet_issue
