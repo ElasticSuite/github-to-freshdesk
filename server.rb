@@ -51,8 +51,8 @@ def send_api_request(action, params = nil, data = nil, put = false)
 
   response = http.request(request)
 
-  unless response.code.to_s == "200" then
-    throw "Response code wasn't 200! #{response.code} #{uri.to_s} \n#{response.body}"
+  unless response.kind_of? Net::HTTPSuccess then
+    throw "Response wasn't susccessful #{response.code} #{uri.to_s} \n#{response.body}"
   end
 
   JSON.parse response.body
