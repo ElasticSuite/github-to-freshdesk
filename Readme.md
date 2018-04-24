@@ -21,7 +21,7 @@ get the internal names for those fields<sup>†</sup> (they look something like
 ```yaml
 ---
 repositories:
-  lyleunderwood/github-to-freshdesk: github_to_freshdesk_ticket_12345
+  lyleunderwood/github-to-freshdesk: github_to_freshdesk_ticket
 ```
 
 and obviously you can have multiple repos in here.
