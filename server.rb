@@ -79,7 +79,7 @@ def handle_labeled(number, repo, label)
     
     regexes = [/dev/i, /staging/i, /prod/i]
     match_index = nil
-    regexes.find_index { |r| match = label.match(r) }
+    regexes.find_index { |r| match_index = label.match(r) }
     if match_index then
       updated_status = match_index + 2
       send_api_request("tickets/#{ticket['id']}", nil, JSON.generate({
