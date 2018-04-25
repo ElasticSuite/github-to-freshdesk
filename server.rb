@@ -77,10 +77,14 @@ def handle_labeled(number, repo, label)
       :private => false
     }))
     
-    regexes = [/dev/i, /staging/i, /prod/i]
-    match_index = regexes.find_index { |r| label.match(r) }
-    if match_index then
-      updated_status = match_index + 2
+    status_numbers = {
+      3 => /dev/i, # pending
+      4 => /prod/i, # resolved
+      5 => /staging/i # staging
+    }
+    match = status_numbers.find { |_num, r| label.match(r) }
+    if match then
+      updated_status = match.first
       send_api_request("tickets/#{ticket['id']}", nil, JSON.generate({
         :status => updated_status
       }), true)
