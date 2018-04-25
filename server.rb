@@ -78,7 +78,16 @@ def handle_labeled(number, repo, label)
       :body => "Github issue #{repo["full_name"]}##{number} has been marked as #{label}.",
       :private => false
     }))
-
+    
+    regexes = [/dev/i, /staging/i, /prod/i]
+    match_index = nil
+    regexes.find_index { |r| match = label.match(r) }
+    if match_index then
+      updated_status = match_index + 2
+      send_api_request("tickets/#{ticket['id']}", nil, JSON.generate({
+        :status => updated_status
+      }), true)
+    end
   end
 end
 

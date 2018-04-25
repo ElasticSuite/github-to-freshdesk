@@ -26,6 +26,18 @@ repositories:
 
 and obviously you can have multiple repos in here.
 
+## Behavior
+
+1.  When Tag changed to "Fixed in Dev"
+    * Add Note
+    * Change Status to Pending
+1.  When a Tag changed to Fixed in Staging
+    * Add Note
+    * Change Status to Staging
+1.  Tag changed to Fixed in Production
+    * Add Note
+    * Change Status to Resolved
+
 <sup>†</sup>To get the custom field internal name run
 
 ```
