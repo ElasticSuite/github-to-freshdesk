@@ -80,7 +80,7 @@ def handle_labeled(number, repo, label)
     status_numbers = {
       3 => /dev/i, # pending
       4 => /prod/i, # resolved
-      5 => /staging/i # staging
+      8 => /staging/i # staging
     }
     match = status_numbers.find { |_num, r| label.match(r) }
     if match then
