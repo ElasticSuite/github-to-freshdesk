@@ -67,7 +67,7 @@ def tickets_for_issue(number, repo)
 end
 
 def handle_labeled(number, repo, label)
-  return unless label =~ /^fixed/i
+  return unless label =~ /^fixed|solution accepted/i
 
   tickets = tickets_for_issue(number, repo)
 
@@ -78,7 +78,7 @@ def handle_labeled(number, repo, label)
     }))
     
     status_numbers = {
-      3 => /dev/i, # pending
+      3 => /dev|solution accepted/i, # pending
       4 => /prod/i, # resolved
       8 => /staging/i # staging
     }
