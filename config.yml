@@ -2,3 +2,4 @@
 repositories:
   ElasticSuite/scramble4: cf_sr_ticket
   ElasticSuite/skillet: skillet_issue
+  ElasticSuite/Talend: talend_issue
